@@ -9,6 +9,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
 
@@ -41,7 +43,7 @@ jobs:
               <div id="redoc"></div>
               <script>
                 Redoc.init(
-                  'openapi.yaml',
+                  './openapi.yaml',
                   {
                     scrollYOffset: 50,
                     hideDownloadButton: false,
@@ -166,10 +168,13 @@ jobs:
           EOF
 
       - name: Copy OpenAPI file
-        run: cp openapi.yaml docs/
+        run: |
+          cp openapi.yaml docs/
+          ls -la docs/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs 
+          publish_dir: ./docs
+          force_orphan: true 
