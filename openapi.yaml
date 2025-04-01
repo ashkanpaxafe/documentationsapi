@@ -1,0 +1,964 @@
+openapi: 3.1.0
+x-stoplight:
+  id: f2c0906f30b2f
+info:
+  title: PAXAFE Live Risk API v2
+  version: '1.3'
+  summary: API for capturing and retrieving live risk data
+  description: |-
+    **Monitoring Simplified. Prevent product waste & ensure on-time delivery.** Unlock loss prevention, Reduce monitoring burden, and build the foundation for scaling IoT.
+
+    Live Risk recommends Act, Watch or Ignore for each shipment and applied at each shipments' device ping.  API response Includes specific risk factors and contextual risk summary statement.  Multiple risk factors evaluated including Predicted Time of Arrival (PTA), Predicted Temperature Excursion (PTE), internal SLA's/contracts and external risk factors (weather, traffic, geopolitical)
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  contact:
+    name: help@paxafe.com
+    url: 'mailto:help@paxafe.com'
+    email: help@paxafe.com
+servers:
+  - url: 'https://api.paxafe.com/live-risk/v2'
+    description: prod
+  - url: 'https://api-qa.paxafe.com/live-risk/v2'
+    description: qa
+  - url: 'https://api-dev.paxafe.com/live-risk/v2'
+    description: dev
+  - url: 'https://api-preprod.paxafe.com/live-risk/v2'
+    description: preprod
+paths:
+  /getLiveStatus:
+    post:
+      summary: PAXAFE Live Risk API v2
+      x-stoplight:
+        id: e518dcfdf66c4
+      operationId: getLiveRisk
+      description: |-
+        **Monitoring Simplified. Prevent product waste & ensure on-time delivery.** Unlock loss prevention, Reduce monitoring burden, and build the foundation for scaling IoT.
+
+        Live Risk recommends Act, Watch or Ignore for each shipment and applied at each shipments' device ping.  API response Includes specific risk factors and contextual risk summary statement.  Multiple risk factors evaluated including Predicted Time of Arrival (PTA), Predicted Temperature Excursion (PTE), internal SLA's/contracts and external risk factors (weather, traffic, geopolitical)
+      parameters: []
+      responses:
+        '200':
+          description: |
+            The Live Risk Response has a few status codes which help
+            in understanding whether the request was well formed 
+            or not. Following is a quick reference to the status codes : 
+            - PXSC100 : When both location and temperature are present in the request
+            - PXSC101 : When only temperature is present in the request
+            - PXSC102 : When only location is present in the request
+            - PXSC103 : When shipment deviated from its identified route
+            - PXER100 : When `shipment_id` is missing or null in the request
+            - PXER101 : When `device_time` is missing or null in the request
+            - PXER102 : When `location` and `temp` are missing or null in the request
+            The following status codes are related to the PTA (Predicted Time of Arrival) fields of Live Risk. They will be found in place of a PTA prediction in the Live Risk response. 
+            - PXER101 : Incorrect `latitude` format
+            - PXER102 : Incorrect  `longitude` format
+            - PXER103 : Incorrect `timestamp` format
+            - PXER104 : Incorrect  `origin`/`destination` format
+            - PXER105 : When `final_destination` is missing in request
+            - PXER106 : Unable to calculate PTA
+            - PXER108 : When the onboarded lane data is missing required fields - lane needs to be refreshed
+            - PXER109 : When the onboarded lane is missing required data - lane needs to be refreshed.
+            - PXER110 : When `final_destination` is None in request
+            **Reference to detailed scenarios [here](docs/testdoc.md)**
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveRiskResponse'
+              examples:
+                All-Risk-Levels-Ignore:
+                  summary: All impacts are Ignore
+                  value:
+                    shipment_id: SHIP12345
+                    device_id: DEV67890
+                    risk_level: Ignore
+                    delivery_impact:
+                      risk_level: Ignore
+                      leg:
+                        current_leg: LEG123
+                        leg_type: stop
+                        leg_current_duration: 1440
+                        leg_typical_duration: 12
+                        pta: '2024-05-21T21:45:06Z'
+                      final_destination:
+                        contracted_transit_time: 3600
+                        shipment_transit_time: 3510.5
+                        pta: '2024-05-21T21:45:06Z'
+                        delayed: false
+                        delayed_by: 0
+                    temperature_impact:
+                      risk_level: Ignore
+                      current_temperature: 23.5
+                      mean_temperature_at_location_historical: 22.8
+                      std_deviation_temperature_at_location_historical: 1.2
+                      temp_ranges:
+                        range_1:
+                          pte: normal temperature
+                          excursion: false
+                          time_out_of_range: 0
+                          remaining_time_out_of_range: 240
+                          remaining_shelf_life: 100%
+                          num_excursions: 0
+                          up_limit: 8
+                          low_limit: 2
+                    external_impact:
+                      risk_level: Ignore
+                      event_summary:
+                        - No significant external events
+                      impacted_location:
+                        - N/A
+                      event_type:
+                        - N/A
+                      event_start_time:
+                        - '2024-10-10T10:00:00-03:00'
+                      event_expiry:
+                        - '2024-10-11T10:00:00-03:00'
+                    device_impact:
+                      ping_rate_risk_level: Ignore
+                      battery_risk_level: Ignore
+                      current_ping_rate: 60
+                      average_ping_rate: 60
+                    packaging_impact:
+                      risk_level: Ignore
+                      thermal_life_expired: false
+                      remaining_thermal_life: 80
+                    risk_summary: The shipment is currently on track with no significant risks identified.
+                Temperature-Impact-Watch:
+                  summary: Temperature impact is Watch
+                  value:
+                    shipment_id: SHIP12346
+                    device_id: DEV67891
+                    risk_level: Watch
+                    delivery_impact:
+                      risk_level: Ignore
+                      leg:
+                        current_leg: LEG124
+                        leg_type: segment
+                        leg_current_duration: 2955
+                        leg_typical_duration: 12
+                        pta: '2024-05-22T14:30:00Z'
+                      final_destination:
+                        contracted_transit_time: 4320
+                        shipment_transit_time: 4245.75
+                        pta: '2024-05-23T10:00:00Z'
+                        delayed: false
+                        delayed_by: 0
+                    temperature_impact:
+                      risk_level: Watch
+                      current_temperature: 7.5
+                      mean_temperature_at_location_historical: 6.8
+                      std_deviation_temperature_at_location_historical: 0.8
+                      temp_ranges:
+                        range_1:
+                          pte: 'warning: temp approaching low_limit'
+                          excursion: false
+                          time_out_of_range: 0
+                          remaining_time_out_of_range: 120
+                          remaining_shelf_life: 95%
+                          num_excursions: 0
+                          up_limit: 8
+                          low_limit: 2
+                    external_impact:
+                      risk_level: Ignore
+                      event_summary:
+                        - Mild weather conditions
+                      impacted_location:
+                        - Chicago
+                      event_type:
+                        - Weather
+                      event_start_time:
+                        - '2024-10-10T10:00:00-03:00'
+                      event_expiry:
+                        - '2024-05-22T12:00:00Z'
+                    device_impact:
+                      ping_rate_risk_level: Ignore
+                      battery_risk_level: Ignore
+                      current_ping_rate: 60
+                      average_ping_rate: 60
+                    packaging_impact:
+                      risk_level: Ignore
+                      thermal_life_expired: false
+                      remaining_thermal_life: 80
+                    risk_summary: The shipment is approaching temperature thresholds and may breach limits in the next few hours.
+                Delivery-Impact-Act:
+                  summary: Delivery impact is Act
+                  value:
+                    shipment_id: SHIP12347
+                    device_id: DEV67892
+                    risk_level: Act
+                    delivery_impact:
+                      risk_level: Act
+                      leg:
+                        current_leg: LEG125
+                        leg_type: stop
+                        leg_current_duration: 1575
+                        leg_typical_duration: 12
+                        pta: '2024-05-24T09:00:00Z'
+                      final_destination:
+                        contracted_transit_time: 3600
+                        shipment_transit_time: 4920.25
+                        pta: '2024-05-25T18:00:00Z'
+                        delayed: true
+                        delayed_by: 1320
+                    temperature_impact:
+                      risk_level: Ignore
+                      current_temperature: 15.5
+                      mean_temperature_at_location_historical: 16.2
+                      std_deviation_temperature_at_location_historical: 1.5
+                      temp_ranges:
+                        range_1:
+                          pte: normal temperature
+                          excursion: false
+                          time_out_of_range: 0
+                          remaining_time_out_of_range: 240
+                          remaining_shelf_life: 90%
+                          num_excursions: 0
+                          up_limit: 8
+                          low_limit: 2
+                    external_impact:
+                      risk_level: Watch
+                      event_summary:
+                        - Severe weather conditions expected
+                      impacted_location:
+                        - Chicago
+                      event_type:
+                        - Weather
+                      event_start_time:
+                        - '2024-10-10T10:00:00-03:00'
+                      event_expiry:
+                        - '2024-05-25T12:00:00Z'
+                    device_impact:
+                      ping_rate_risk_level: Ignore
+                      battery_risk_level: Ignore
+                      current_ping_rate: 60
+                      average_ping_rate: 60
+                    packaging_impact:
+                      risk_level: Ignore
+                      thermal_life_expired: false
+                      remaining_thermal_life: 80
+                    risk_summary: Urgent action required due to significant delays in delivery. Weather conditions may further impact the shipment.
+                All-Impacts:
+                  summary: Example with multiple external impacts
+                  value:
+                    shipment_id: SHIP12345
+                    device_id: DEV67890
+                    risk_level: Watch
+                    delivery_impact:
+                      risk_level: Ignore
+                      leg:
+                        current_leg: LEG123
+                        leg_type: stop
+                        leg_current_duration: 1440
+                        leg_typical_duration: 12
+                        pta: '2024-05-21T21:45:06Z'
+                      final_destination:
+                        contracted_transit_time: 3600
+                        shipment_transit_time: 3510.5
+                        pta: '2024-05-21T21:45:06Z'
+                        delayed: false
+                        delayed_by: 0
+                    temperature_impact:
+                      risk_level: Ignore
+                      current_temperature: 23.5
+                      mean_temperature_at_location_historical: 22.8
+                      std_deviation_temperature_at_location_historical: 1.2
+                      temp_ranges:
+                        range_1:
+                          pte: normal temperature
+                          excursion: false
+                          time_out_of_range: 0
+                          remaining_time_out_of_range: 240
+                          num_excursions: 0
+                          up_limit: 8
+                          low_limit: 2
+                    external_impact:
+                      event_summary:
+                        - 'INMET issues alert starting on: 09/30/2024 10:32. Slight health risk. Temperature 5°C above average for a period of 02 to 03 days.'
+                        - 'INMET issues alert starting on: 09/30/2024 09:33. Relative humidity varying between 30% and 20%. Low risk of forest fires and health issues.'
+                      impacted_location:
+                        - Sao Paulo
+                        - Technopark
+                      event_type:
+                        - 'weather:Heat wave'
+                        - 'weather:Low Humidity'
+                      event_start_time:
+                        - '2024-10-10T10:00:00-03:00'
+                        - '2024-10-10T10:00:00-03:00'
+                      event_expiry:
+                        - '2024-10-02T23:59:00-03:00'
+                        - '2024-09-30T23:00:00-03:00'
+                      risk_level: Watch
+                    device_impact:
+                      ping_rate_risk_level: Ignore
+                      battery_risk_level: Ignore
+                      current_ping_rate: 60
+                      average_ping_rate: 60
+                    packaging_impact:
+                      risk_level: Ignore
+                      thermal_life_expired: false
+                      remaining_thermal_life: 80
+                    risk_summary: 'The shipment is currently on track, but there are weather alerts for heat wave and low humidity in the delivery area that may impact the shipment.'
+                Example 1:
+                  value:
+                    status_code: PXSC100
+                    shipment_id: SHIP12345
+                    device_id: DEV67890
+                    risk_level: Ignore
+                    risk_summary: 'The shipment is predicted to breach the temperature limit 2-10 C in the next 120 minutes, the shipment is dwelling at the current leg longer than usual but may still arrive at the destination on time.'
+                    delivery_impact:
+                      risk_level: Ignore
+                      leg:
+                        current_leg: LEG123
+                        leg_type: stop
+                        leg_current_duration: 1440
+                        leg_typical_duration: 12
+                        pta: '2024-05-21T21:45:06Z'
+                      final_destination:
+                        contracted_delivery_time: '2023-01-05 08:20:59'
+                        shipment_transit_time: 3510.5
+                        pta: '2024-05-21T21:45:06Z'
+                        delayed: false
+                        delayed_by: 0
+                    temperature_impact:
+                      risk_level: Watch
+                      current_temperature: 23.5
+                      mean_temperature_at_location_historical: 22.8
+                      std_deviation_temperature_at_location_historical: 1.2
+                      temp_ranges:
+                        property1:
+                          pte: normal temperature
+                          excursion: false
+                          time_out_of_range: 540
+                          remaining_time_out_of_range: 60
+                          remaining_shelf_life: 10%
+                          num_excursions: 2
+                          up_limit: 8
+                          low_limit: 2
+                        property2:
+                          pte: normal temperature
+                          excursion: false
+                          time_out_of_range: 540
+                          remaining_time_out_of_range: 60
+                          remaining_shelf_life: 10%
+                          num_excursions: 2
+                          up_limit: 8
+                          low_limit: 2
+                    external_impact:
+                      risk_level: Watch
+                      event_summary:
+                        - 'INMET issues alert starting on: 09/30/2024 10:32. Slight health risk. Temperature 5°C above average for a period of 02 to 03 days.'
+                        - 'INMET issues alert starting on: 09/30/2024 09:33. Relative humidity varying between 30% and 20%. Low risk of forest fires and health issues.'
+                      impacted_location:
+                        - Sao Paulo
+                        - Technopark
+                      event_type:
+                        - 'weather:Heat wave'
+                        - 'weather:Low Humidity'
+                      event_start_time:
+                        - '2024-10-10T10:00:00-03:00'
+                        - '2024-10-10T10:00:00-03:00'
+                      event_expiry:
+                        - '2024-10-02T23:59:00-03:00'
+                        - '2024-09-30T23:00:00-03:00'
+                    device_impact:
+                      ping_rate_risk_level: Ignore
+                      battery_risk_level: Ignore
+                      current_ping_rate: 60
+                      average_ping_rate: 60
+                    packaging_impact:
+                      risk_level: Ignore
+                      thermal_life_expired: false
+                      remaining_thermal_life: 80
+      security:
+        - x-api-key: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - shipment_id
+                - device_time
+              properties:
+                shipment_id:
+                  type: string
+                  description: Unique identifier for the shipment
+                  example: SHIP12345
+                device_time:
+                  type: integer
+                  description: Device timestamp in epoch time
+                  format: int64
+                  example: 1627848302
+                device_id:
+                  type: string
+                  description: Unique identifier for the device
+                  example: DEV67890
+                latitude:
+                  type: number
+                  description: 'Latitude of the current location. If missing, only temperature_impact will be present in the output response.'
+                  format: float
+                  example: 37.7749
+                longitude:
+                  type: number
+                  description: 'Longitude of the current location. If missing, only temperature_impact will be present in the output response.'
+                  example: -122.4194
+                  format: float
+                temperature:
+                  type: number
+                  description: 'Current temperature in Celsius. If missing, only delivery_impact and external_impact will be present in the output response.'
+                  example: 23.5
+                  format: float
+                battery:
+                  type: number
+                  description: 'Current battery in percentage. If missing, only delivery_impact, external_impact and temperature_impact will be present in the output response.'
+                  example: 23.5
+                  format: float
+                lane_id:
+                  type: string
+                  description: Lane identifier or name.
+                  example: LANE456
+                customer_lane_id:
+                  type: string
+                  x-stoplight:
+                    id: dommltxnxw40r
+                  description: Customer lane ID can be input as an alternative for lane_id.
+                  example: '875254'
+                temperature_profile:
+                  type: array
+                  description: Temperature profile data. List of dictionaries with temperature range information.  Not mandatory if temperature is missing.
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - time_outside_range
+                      - low
+                      - high
+                    properties:
+                      name:
+                        type: string
+                        description: 'Product name, generic range name, or ''''overall'''' if only one range is tracked'
+                        example: overall
+                      time_outside_range:
+                        type: integer
+                        description: Time allowed outside temperature range in minutes. -1 if not available or applicable.
+                        example: 120
+                      low:
+                        type: integer
+                        description: Lower temperature threshold in degrees Celsius.
+                        example: 0
+                      high:
+                        type: integer
+                        description: Upper temperature threshold in degrees Celsius.
+                        example: 25
+                      product_family:
+                        type: string
+                        description: Optional field for product family.
+                        example: 200m
+                contracted_delivery_time:
+                  type: integer
+                  description: Contracted transit time in minutes.
+                  x-stoplight:
+                    id: 1y02bwclo07nw
+                  example: 1200
+                delivery_date:
+                  type: string
+                  description: Delivery date and time in UTC.
+                  example: '2024-05-21T21:45:06Z'
+                  format: date-time
+                journey_config:
+                  type: array
+                  x-stoplight:
+                    id: 028ussrxc5oqd
+                  items:
+                    x-stoplight:
+                      id: fuv08194iwk00
+                    type: object
+                    required:
+                      - name
+                      - type
+                      - latitude
+                      - longitude
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: dnt1nmf5s14mr
+                        example: 1
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: dqxa2400lmjqa
+                        example: ORD
+                      type:
+                        x-stoplight:
+                          id: 1s7hdgydrxujh
+                        type: string
+                        enum:
+                          - origin
+                          - destination
+                          - stop
+                        example: origin
+                      latitude:
+                        type: number
+                        x-stoplight:
+                          id: 4wql19nnru8le
+                        example: -49.324
+                        format: float
+                      longitude:
+                        type: number
+                        x-stoplight:
+                          id: 1dazkhk37wdk2
+                        example: 34.89
+                        format: float
+                shipment_config:
+                  type: object
+                  x-stoplight:
+                    id: ck3dszaqjv56c
+                  description: Shipment configuration data.
+                  properties:
+                    carrier_name:
+                      type: string
+                      x-stoplight:
+                        id: ihmfyy1g5bdpf
+                      example: UPS
+                    packaging:
+                      type: string
+                      x-stoplight:
+                        id: yong977t3bxvm
+                      example: Envirotainer
+                    thermal_life:
+                      type: number
+                      format: float
+                      description: 'Represents expected thermal life of shipment for given product, measured in hours. Optional field.'
+                      example: 85
+                device_config:
+                  type: object
+                  x-stoplight:
+                    id: ck3dszaqjv56n
+                  description: Device configuration data.
+                  properties:
+                    expected_ping_rate:
+                      type: number
+                      format: float
+                      x-stoplight:
+                        id: ihmfyy1g5bdif
+                      example: 40
+                    start_battery_threshold:
+                      type: number
+                      format: float
+                      x-stoplight:
+                        id: yong977t5bxjm
+                      example: 90
+                    end_battery_threshold:
+                      type: number
+                      format: float
+                      x-stoplight:
+                        id: yong957t5bxpm
+                      example: 10
+            examples:
+              Example 1:
+                value:
+                  shipment_id: SHIP12345
+                  device_time: 1627848302
+                  device_id: DEV67890
+                  latitude: 37.7749
+                  longitude: -122.4194
+                  temperature: 23.5
+                  battery: 40
+                  lane_id: LANE456
+                  customer_lane_id: '875254'
+                  temperature_profile:
+                    - name: overall
+                      time_outside_range: 120
+                      low: 0
+                      high: 25
+                      product_family: 200m
+                  contracted_delivery_time: 1200
+                  delivery_date: '2024-05-21T21:45:06Z'
+                  journey_config:
+                    - id: 1
+                      name: ORD
+                      type: origin
+                      latitude: -49.324
+                      longitude: 34.89
+                    - id: 2
+                      name: DFW
+                      type: stop
+                      latitude: 32.898
+                      longitude: -97.036
+                    - id: 3
+                      name: LAX
+                      type: destination
+                      latitude: 33.939
+                      longitude: -118.404
+                  shipment_config:
+                    carrier_name: UPS
+                    packaging: Envirotainer
+                    thermal_life: 100
+                  device_config:
+                    expected_ping_rate: 40
+                    start_battery_threshold: 90
+                    end_battery_threshold: 10
+      tags:
+        - liverisk
+    parameters: []
+components:
+  securitySchemes:
+    x-api-key:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    LiveRiskResponse:
+      type: object
+      x-stoplight:
+        id: g1fj1j6yqgf6s
+      properties:
+        status_code:
+          type: string
+          description: Status of the response
+          enum:
+            - PXSC100
+            - PXSC101
+            - PXSC102
+            - PXER100
+            - PXER101
+            - PXER102
+          example: PXSC100
+        shipment_id:
+          type: string
+          description: Unique identifier for the shipment
+          example: SHIP12345
+        device_id:
+          type: string
+          description: Unique identifier for the device
+          example: DEV67890
+        risk_level:
+          type: string
+          description: Overall risk level for the shipment
+          enum:
+            - Ignore
+            - Watch
+            - Act
+          example: Ignore
+        risk_summary:
+          type: string
+          description: Contextual statement about the overall state of the shipment
+          example: 'The shipment is predicted to breach the temperature limit 2-10 C in the next 120 minutes, the shipment is dwelling at the current leg longer than usual but may still arrive at the destination on time.'
+        delivery_impact:
+          type: object
+          description: Impact on delivery details
+          properties:
+            risk_level:
+              type: string
+              description: Risk level for delivery impact
+              enum:
+                - Ignore
+                - Watch
+                - Act
+                - Unavailable
+              example: Ignore
+            leg:
+              type: object
+              description: Current leg details
+              properties:
+                current_leg:
+                  type: string
+                  description: Identifier for the current leg
+                  example: LEG123
+                leg_type:
+                  type: string
+                  description: Type of the current leg
+                  enum:
+                    - stop
+                    - segment
+                    - N/A
+                  example: stop
+                leg_current_duration:
+                  type:
+                    - integer
+                    - string
+                  description: Current duration of this leg in minutes
+                  example: 1440
+                leg_typical_duration:
+                  type: integer
+                  x-stoplight:
+                    id: bcrlu9b0xkwux
+                  description: Average duration / dwell time of shipments during this leg.
+                pta:
+                  type: string
+                  description: Predicted Time of Arrival for this leg. Available only for onboarded lanes.
+                  example: '2024-05-21T21:45:06Z'
+                  format: date-time/string
+                delayed:
+                  type: boolean
+                  description: Whether arrival at leg is delayed
+                  example: false
+            final_destination:
+              type: object
+              description: Final destination details
+              properties:
+                contracted_delivery_time:
+                  type: string
+                  description: Final destination time based on the time the shipment began and the contracted transit time
+                  x-stoplight:
+                    id: s95p7rshb41vb
+                  format: date-time
+                  example: '2023-01-05 08:20:59'
+                shipment_transit_time:
+                  type: number
+                  format: float
+                  description: Actual transit time to final destination in minutes
+                  example: 3510.5
+                pta:
+                  type: string
+                  description: Predicted Time of Arrival at final destination. Available only for onboarded lanes.
+                  example: '2024-05-21T21:45:06Z'
+                  format: date-time/string
+                delayed:
+                  type: boolean
+                  description: Whether arrival at final destination is delayed
+                  example: false
+                delayed_by:
+                  type: integer
+                  description: 'Duration of delay at final destination in minutes, if any'
+                  example: 0
+        temperature_impact:
+          type: object
+          description: Impact of temperature on the shipment
+          properties:
+            risk_level:
+              type: string
+              description: Risk level for temperature impact
+              enum:
+                - Ignore
+                - Watch
+                - Act
+                - Unavailable
+              example: Watch
+            current_temperature:
+              type: number
+              format: float
+              description: Current temperature of the shipment in Celsius
+              example: 23.5
+            mean_temperature_at_location_historical:
+              type:
+                - number
+                - 'null'
+              description: Historical average temperature at the current location in Celsius. Available only for onboarded lanes.
+              example: 22.8
+            std_deviation_temperature_at_location_historical:
+              type:
+                - number
+                - 'null'
+              description: Standard deviation of historical temperature at the current location in Celsius. Available only for onboarded lanes.
+              example: 1.2
+            temp_ranges:
+              type: object
+              description: Temperature profile data. The number of ranges will depend on the temperature profile specified in the input.
+              additionalProperties:
+                $ref: '#/components/schemas/TemperatureRange'
+        external_impact:
+          type: object
+          description: External factors impacting the shipment
+          properties:
+            risk_level:
+              type: string
+              description: Risk level for external impact
+              enum:
+                - Ignore
+                - Watch
+                - Act
+              example: Watch
+            event_summary:
+              type: array
+              description: Summary of the external events
+              example:
+                - 'INMET issues alert starting on: 09/30/2024 10:32. Slight health risk. Temperature 5°C above average for a period of 02 to 03 days.'
+                - 'INMET issues alert starting on: 09/30/2024 09:33. Relative humidity varying between 30% and 20%. Low risk of forest fires and health issues.'
+              items:
+                type: string
+            impacted_location:
+              type: array
+              description: Locations impacted by the external events
+              example:
+                - Sao Paulo
+                - Technopark
+              items:
+                type: string
+            impacted_location_coordinates:
+              type: array
+              description: Locations coordinates impacted by the external events
+              example:
+                - latitude: 34.5566
+                  longitude: -56.6663
+                - latitude: 45.5656
+                  longitude: -78.3434
+              items:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                  longitude:
+                    type: number
+            event_type:
+              type: array
+              description: Types of the external events
+              example:
+                - 'weather:Heat wave'
+                - 'weather:Low Humidity'
+              items:
+                type: string
+            event_start_time:
+              type:
+                - array
+              x-stoplight:
+                id: mq45rxb9f5a1b
+              description: Start time of external event.
+              items:
+                x-stoplight:
+                  id: italwtpgs564k
+                type: string
+            event_expiry:
+              type: array
+              description: Expiry times of the external events
+              example:
+                - '2024-10-02T23:59:00-03:00'
+                - '2024-09-30T23:00:00-03:00'
+              items:
+                type: string
+                format: date-time
+        device_impact:
+          type: object
+          x-stoplight:
+            id: wbd7cl1q3m635
+          properties:
+            risk_level:
+              type: string
+              description: Device impact risk level
+              enum:
+                - Ignore
+                - Watch
+                - Act
+                - Unavailable
+              example: Ignore
+              x-stoplight:
+                id: fn5h44evyl0di
+            ping_rate_risk_level:
+              type: string
+              description: Risk level for ping rate
+              enum:
+                - Ignore
+                - Watch
+                - Act
+                - Unavailable
+              example: Ignore
+              x-stoplight:
+                id: znujfdp4uejoj
+            battery_risk_level:
+              type: string
+              description: Risk level for ping rate
+              enum:
+                - Ignore
+                - Watch
+                - Act
+              example: Ignore
+              x-stoplight:
+                id: 62l0cdxn1yepj
+            current_ping_rate:
+              type: number
+              description: Current ping rate of shipment
+              example: 60
+              x-stoplight:
+                id: r1mtkxj86jcbb
+            average_ping_rate:
+              type: number
+              description: Average ping rate of shipment
+              example: 60
+              x-stoplight:
+                id: wbk81tzir4yfb
+        packaging_impact:
+          type: object
+          x-stoplight:
+            id: 52fzp5cpnoi8c
+          properties:
+            risk_level:
+              type: string
+              description: Packaging Risk level
+              enum:
+                - Ignore
+                - Watch
+                - Act
+                - Unavailable
+              example: Ignore
+              x-stoplight:
+                id: xjwh8hit02x1b
+            thermal_life_expired:
+              type: boolean
+              description: Represents if thermal life of shipment has expired
+              example: false
+              x-stoplight:
+                id: 9l966glm9j3v2
+            remaining_thermal_life:
+              type: number
+              description: Represents remaining thermal life of shipment
+              example: 40
+              x-stoplight:
+                id: rr6sykdrcurmn
+            remaining_thermal_life_duration:
+              type: number
+              description: Represents remaining thermal life of shipment
+              example: 30
+              x-stoplight:
+                id: pq07ktg9bydzy
+        location_status:
+          type: string
+          x-stoplight:
+            id: il6jjopvt0v1v
+          description: Description of where the shipment is relative to predictions.
+    TemperatureRange:
+      type: object
+      properties:
+        pte:
+          type:
+            - string
+            - 'null'
+          description: Predicted Temperature Excursion status
+          examples:
+            - normal temperature
+            - 'alarm: temp below low_limit'
+            - 'alarm: temp above up_limit'
+            - 'warning: temp approaching low_limit'
+            - 'warning: temp approaching up_limit'
+        excursion:
+          type: boolean
+          description: Whether a temperature excursion has occurred
+          example: false
+        time_out_of_range:
+          type: integer
+          description: Time spent out of the acceptable temperature range in minutes
+          example: 540
+        remaining_time_out_of_range:
+          type: integer
+          description: Remaining time allowed out of the acceptable temperature range in minutes
+          example: 60
+        remaining_shelf_life:
+          type: string
+          description: Remaining shelf life of the product
+          example: 10%
+        num_excursions:
+          type: integer
+          description: Number of temperature excursions that have occurred
+        low_limit:
+          type: integer
+          description: Lower limit of Product temperature tange
+        up_limit:
+          type: integer
+          description: Upper limit of Product temperature tange
+          example: 8
+      x-stoplight:
+        id: s010uqwwz0wsb
+x-extension-1: null
+tags:
+  - name: liverisk
+    description: liverisk 
