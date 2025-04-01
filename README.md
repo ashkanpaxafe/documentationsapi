@@ -1,6 +1,40 @@
 # PAXAFE Live Risk API Documentation
 
-This repository contains the OpenAPI specification for the PAXAFE Live Risk API v2.
+This repository contains the OpenAPI specification and documentation for the PAXAFE Live Risk API v2.
+
+## Documentation
+
+The API documentation is available at: https://ashkanpaxafe.github.io/documentationsapi/
+
+## Local Development
+
+To run the documentation locally:
+
+1. Install the Redocly CLI:
+```bash
+npm install -g @redocly/cli
+```
+
+2. Start the documentation server:
+```bash
+redocly preview-docs openapi.yaml
+```
+
+3. Open your browser and navigate to `http://localhost:8080`
+
+## Repository Structure
+
+- `openapi.yaml` - The OpenAPI specification file
+- `redocly.yaml` - ReDocly configuration file
+- `.github/workflows/deploy-docs.yaml` - GitHub Actions workflow for deploying documentation
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## Overview
 
@@ -55,4 +89,4 @@ For support or questions, please contact:
 
 ## License
 
-This API is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.

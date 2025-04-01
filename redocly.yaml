@@ -1,91 +1,67 @@
-theme:
-  colors:
-    primary:
-      main: '#2B6CB0'
-      light: '#4299E1'
-      dark: '#2C5282'
-    success:
-      main: '#48BB78'
-      light: '#68D391'
-      dark: '#2F855A'
-    warning:
-      main: '#ECC94B'
-      light: '#F6E05E'
-      dark: '#D69E2E'
-    error:
-      main: '#F56565'
-      light: '#FC8181'
-      dark: '#C53030'
-  typography:
-    fontSize: '16px'
-    fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
-    headings:
-      fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
-      fontWeight: '600'
-  sidebar:
-    backgroundColor: '#F7FAFC'
-    textColor: '#2D3748'
-    activeTextColor: '#2B6CB0'
-    width: '300px'
-  rightPanel:
-    backgroundColor: '#F7FAFC'
-    width: '40%'
-  codeBlock:
-    backgroundColor: '#EDF2F7'
-    tokens:
-      string: '#2F855A'
-      number: '#2B6CB0'
-      boolean: '#805AD5'
-      keyword: '#C53030'
-      function: '#D69E2E'
-      operator: '#4A5568'
-      comment: '#718096'
-      tag: '#2B6CB0'
-      attr: '#2F855A'
-      selector: '#805AD5'
-      property: '#4A5568'
-      punctuation: '#718096'
-      builtin: '#C53030'
-      variable: '#2D3748'
-      constant: '#2B6CB0'
-      symbol: '#D69E2E'
-      deleted: '#E53E3E'
-      inserted: '#38A169'
-      changed: '#D69E2E'
-      char: '#2F855A'
-      regex: '#805AD5'
-      url: '#2B6CB0'
-      important: '#C53030'
-      entity: '#4A5568'
-      namespace: '#718096'
-      decorator: '#2B6CB0'
-      jsonProperty: '#2F855A'
-      jsonString: '#2F855A'
-      jsonNumber: '#2B6CB0'
-      jsonBoolean: '#805AD5'
-      jsonNull: '#718096'
-      yamlKey: '#2B6CB0'
-      yamlString: '#2F855A'
-      yamlNumber: '#2B6CB0'
-      yamlBoolean: '#805AD5'
-      yamlNull: '#718096'
-      yamlTag: '#C53030'
-      yamlAnchor: '#2B6CB0'
-      yamlAlias: '#2B6CB0'
-      yamlDocumentStart: '#718096'
-      yamlDocumentEnd: '#718096'
-      yamlDirective: '#C53030'
-      yamlDirectiveName: '#2B6CB0'
-      yamlDirectiveText: '#2F855A'
-      yamlTagHandle: '#C53030'
-      yamlTagName: '#2B6CB0'
-      yamlTagPrefix: '#C53030'
-      yamlTagSuffix: '#C53030'
-      yamlTagColon: '#718096'
-      yamlTagIndicator: '#C53030'
-      yamlTagIndicatorName: '#2B6CB0'
-      yamlTagIndicatorText: '#2F855A'
-      yamlTagIndicatorColon: '#718096'
-      yamlTagIndicatorPrefix: '#C53030'
-      yamlTagIndicatorSuffix: '#C53030'
-      yamlTagIndicatorHandle: '#C53030'
+features:
+  scrollYOffset: 50
+  search:
+    indexing: true
+    working: true
+  jumpToPath: true
+  hideDownloadButton: true
+  hideHostname: true
+  noAutoAuth: true
+  pathInMiddlePanel: true
+  showObjectSchemaExamples: true
+  sideNavStyle: path-only
+  theme:
+    colors:
+      primary:
+        main: '#2196f3'
+        light: '#64b5f6'
+        dark: '#1976d2'
+      success:
+        main: '#4caf50'
+        light: '#81c784'
+        dark: '#388e3c'
+      warning:
+        main: '#ff9800'
+        light: '#ffb74d'
+        dark: '#f57c00'
+      error:
+        main: '#f44336'
+        light: '#e57373'
+        dark: '#d32f2f'
+      text:
+        primary: '#333333'
+        secondary: '#666666'
+    typography:
+      fontSize: '16px'
+      fontFamily: 'Roboto, sans-serif'
+      headings:
+        fontFamily: 'Roboto, sans-serif'
+        fontWeight: '600'
+    sidebar:
+      backgroundColor: '#fafafa'
+      textColor: '#333333'
+      activeTextColor: '#2196f3'
+      activeBgColor: '#e3f2fd'
+      borderColor: '#e0e0e0'
+      width: '260px'
+    rightPanel:
+      backgroundColor: '#fafafa'
+      width: '40%'
+    codeBlock:
+      backgroundColor: '#f5f5f5'
+      tokens:
+        string: '#22863a'
+        number: '#005cc5'
+        boolean: '#005cc5'
+        keyword: '#d73a49'
+        function: '#6f42c1'
+        operator: '#d73a49'
+        comment: '#6a737d'
+        class: '#22863a'
+        method: '#005cc5'
+        property: '#005cc5'
+        namespace: '#22863a'
+        punctuation: '#24292e'
+        decorator: '#22863a'
+        regex: '#032f62'
+        json-property: '#005cc5'
