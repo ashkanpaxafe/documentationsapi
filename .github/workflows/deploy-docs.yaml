@@ -35,6 +35,11 @@ jobs:
                 #redoc-container {
                   min-height: 100vh;
                 }
+                .error-message {
+                  color: red;
+                  padding: 20px;
+                  font-family: Inter, sans-serif;
+                }
               </style>
               <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"> </script>
             </head>
@@ -42,34 +47,54 @@ jobs:
               <div id="redoc-container"></div>
               <script>
                 window.onload = function() {
-                  Redoc.init(
-                    window.location.origin + '/documentationsapi/openapi.yaml',
-                    {
-                      scrollYOffset: 50,
-                      hideDownloadButton: false,
-                      theme: {
-                        colors: {
-                          primary: {
-                            main: '#2196f3'
-                          }
-                        },
-                        typography: {
-                          fontFamily: 'Inter, sans-serif',
-                          headings: {
-                            fontFamily: 'Inter, sans-serif'
+                  // Try to load the spec with different paths
+                  const paths = ['./openapi.yaml', 'openapi.yaml'];
+                  let loaded = false;
+
+                  function tryLoadSpec(path) {
+                    if (loaded) return;
+                    console.log('Trying to load spec from:', path);
+                    
+                    Redoc.init(
+                      path,
+                      {
+                        scrollYOffset: 50,
+                        hideDownloadButton: false,
+                        theme: {
+                          colors: {
+                            primary: {
+                              main: '#2196f3'
+                            }
+                          },
+                          typography: {
+                            fontFamily: 'Inter, sans-serif',
+                            headings: {
+                              fontFamily: 'Inter, sans-serif'
+                            }
                           }
                         }
-                      }
-                    },
-                    document.getElementById('redoc-container'),
-                    function(e) {
-                      if (e) {
-                        console.error('Failed to load spec:', e);
+                      },
+                      document.getElementById('redoc-container')
+                    ).then(function() {
+                      console.log('Successfully loaded spec from:', path);
+                      loaded = true;
+                    }).catch(function(e) {
+                      console.error('Failed to load spec from ' + path + ':', e);
+                      if (path === paths[paths.length - 1]) {
                         document.getElementById('redoc-container').innerHTML = 
-                          '<p style="color: red; padding: 20px;">Error loading API documentation. Please check the console for details.</p>';
+                          '<div class="error-message">' +
+                          '<h2>Error Loading API Documentation</h2>' +
+                          '<p>Failed to load the OpenAPI specification. Details:</p>' +
+                          '<pre>' + e.message + '</pre>' +
+                          '<p>Current location: ' + window.location.href + '</p>' +
+                          '<p>Attempted path: ' + path + '</p>' +
+                          '</div>';
                       }
-                    }
-                  );
+                    });
+                  }
+
+                  // Try each path in sequence
+                  paths.forEach(tryLoadSpec);
                 };
               </script>
             </body>
@@ -93,6 +118,9 @@ jobs:
           ls -la docs/
           echo "Size of copied spec:"
           wc -c docs/openapi.yaml
+          echo "Verifying file permissions:"
+          chmod 644 docs/openapi.yaml
+          ls -l docs/openapi.yaml
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
