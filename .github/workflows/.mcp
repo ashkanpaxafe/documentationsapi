@@ -1,0 +1,19 @@
+version: 1.0
+model_access:
+  type: github
+  repository: ashkanpaxafe/documentationsapi
+  permissions:
+    - read
+    - write
+content_protocols:
+  - type: code
+    patterns:
+      - "**/*.yaml"
+      - "**/*.md"
+  - type: documentation
+    patterns:
+      - "openapi.yaml"
+      - "README.md"
+auth:
+  type: oauth
+  scope: repo
