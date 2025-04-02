@@ -41,36 +41,58 @@ jobs:
             <body>
               <div id="redoc-container"></div>
               <script>
-                Redoc.init(
-                  'spec.yaml',
-                  {
-                    scrollYOffset: 50,
-                    hideDownloadButton: false,
-                    theme: {
-                      colors: {
-                        primary: {
-                          main: '#2196f3'
-                        }
-                      },
-                      typography: {
-                        fontFamily: 'Inter, sans-serif',
-                        headings: {
-                          fontFamily: 'Inter, sans-serif'
+                window.onload = function() {
+                  Redoc.init(
+                    window.location.origin + '/documentationsapi/openapi.yaml',
+                    {
+                      scrollYOffset: 50,
+                      hideDownloadButton: false,
+                      theme: {
+                        colors: {
+                          primary: {
+                            main: '#2196f3'
+                          }
+                        },
+                        typography: {
+                          fontFamily: 'Inter, sans-serif',
+                          headings: {
+                            fontFamily: 'Inter, sans-serif'
+                          }
                         }
                       }
+                    },
+                    document.getElementById('redoc-container'),
+                    function(e) {
+                      if (e) {
+                        console.error('Failed to load spec:', e);
+                        document.getElementById('redoc-container').innerHTML = 
+                          '<p style="color: red; padding: 20px;">Error loading API documentation. Please check the console for details.</p>';
+                      }
                     }
-                  },
-                  document.getElementById('redoc-container')
-                );
+                  );
+                };
               </script>
             </body>
           </html>
           EOF
 
+      - name: Verify OpenAPI spec
+        run: |
+          if [ ! -f "openapi.yaml" ]; then
+            echo "Error: openapi.yaml not found"
+            exit 1
+          fi
+          echo "OpenAPI spec file size: $(wc -c < openapi.yaml) bytes"
+          echo "OpenAPI spec first few lines:"
+          head -n 5 openapi.yaml
+
       - name: Copy OpenAPI spec
         run: |
-          cp openapi.yaml docs/spec.yaml
+          cp openapi.yaml docs/openapi.yaml
+          echo "Contents of docs directory:"
           ls -la docs/
+          echo "Size of copied spec:"
+          wc -c docs/openapi.yaml
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
